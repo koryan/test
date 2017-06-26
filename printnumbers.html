@@ -1,0 +1,48 @@
+<script>
+/**
+ * Вывод чисел в колонках
+ * @param   {Number}  max    от 0 до max
+ * @param   {Number}  cols   количество колонок
+ * @returns {String}
+ */
+var printNumbers = function (max, cols) {
+    // create 2-dimecional matrix with number of rows equal to needed cols
+	var createArray = function(max, cols){
+		var arr = [];
+		var tArr = [];
+		for (var i = 0; i < max; i++){
+			tArr.push(i);
+			if((i +1) % Math.ceil(max/cols) === 0){
+				arr.push(tArr);
+				tArr = [];
+			}
+		}
+		if (tArr.length > 0)arr.push(tArr);
+		return arr;
+	}
+
+	//matrix rotation
+	var rotateArray = function(array){
+		return array[0].map(function(col, i){
+				return array.map(function(row){
+						return row[i];
+				});
+		});
+	}
+
+	// prepare matrix to output in console
+	// trim - is a good workaround to remove extra spaces from joining empty fields in matrix
+	return rotateArray(createArray(max, cols)).map((el) => el.join(" ")).join("\n").trim()
+};
+
+
+console.log(printNumbers(12, 3));
+/*
+Пример работы:
+0 4 8
+1 5 9
+2 6 10
+3 7 11
+*/
+
+</script>

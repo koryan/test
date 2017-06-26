@@ -1,0 +1,69 @@
+<script>
+/* 
+Strange test 
+Mixing sync and async functions - quite bad practice
+I know hudge amount of ways to do parallel tasks, such as promise, Rx, async/await and etc. (My favorite is utility caolan/async)
+If i correctly understand you want realisation in vanilla, so here you are
+*/
+
+
+function parallel() {
+	var tasks = arguments[0];
+	var onComplete = arguments[1];
+	var counter = tasks.length;
+	var allResults = [];
+	
+	//collect responce for async functions
+	var makeCallback = function(index) {
+		return function (param) {		 
+			allResults[index] = param;
+			onTaskEnd();
+		}
+	}
+
+	// count done tasks and call onComplete in the end of work
+	var onTaskEnd = function(){
+		counter--;		 
+		if (counter == 0) {
+			onComplete(allResults);
+		}
+	}
+
+	// test func whether it sync on not
+	// very bad practice, but i think it's ok for this syntetic test
+	var testIfSyncFunc = function(func){
+		return (func(function(){}))?true:false;
+	}
+
+	// call funcs
+	for (var i = 0; i < tasks.length; i++) {		
+		if (testIfSyncFunc(tasks[i])){ //for sync func
+			allResults[i] = tasks[i]();
+			onTaskEnd()
+		}else{ //for async func
+			tasks[i](makeCallback(i));
+		}
+	}
+}
+
+
+parallel([
+	function (resolve) {
+		setTimeout(function () {
+			resolve(10);
+		}, 50);
+	},
+	
+	function () {
+		return 5;
+	},
+	function (resolve) {
+		setTimeout(function () {
+			resolve(0);
+		}, 10)
+	}
+], function (results) {
+	console.log(results); // [10, 5, 0]
+});
+
+</script>
